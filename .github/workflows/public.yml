@@ -1,0 +1,24 @@
+name: Public checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile Java and check startup
+        run: python tools/run.py --setup
+      - name: Public Java algorithm checks
+        run: python tools/run.py --check
+      - name: Own independent tests and scale checks
+        run: python -m unittest discover -s tests/student -p 'test_*.py' -v
